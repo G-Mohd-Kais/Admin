@@ -1,266 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:0; }
-  .container { width: 90%; max-width:1200px; margin: auto; padding:20px; }
-  h1 { text-align:center; margin-bottom:30px; }
-  .section { background:#fff; padding:20px; margin-bottom:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-  .section h2 { margin-top:0; }
-  .input-group { margin-bottom:15px; }
-  .input-group label { display:block; margin-bottom:5px; font-weight:bold; }
-  .input-group input, .input-group textarea, .input-group select { width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; }
-  .btn { padding:10px 20px; background:#007BFF; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-top:10px; }
-  .btn:hover { background:#0056b3; }
-  .cards-container { display:flex; flex-wrap:wrap; gap:20px; }
-  .card-item { border:1px solid #ccc; padding:10px; border-radius:4px; width:200px; position:relative; }
-  .card-item img { max-width:100%; border-radius:4px; margin-bottom:5px; }
-  .remove-card { position:absolute; top:5px; right:5px; background:red; color:#fff; border:none; border-radius:50%; cursor:pointer; width:24px; height:24px; text-align:center; }
-</style>
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Admin • 2025</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+
+  <style>
+    body { font-family: Inter, sans-serif; }
+  </style>
 </head>
-<body>
-<div class="container">
-  <h1>Portfolio Admin Dashboard</h1>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
 
-  <!-- Authentication -->
-  <div class="section" id="auth-section">
-    <h2>Login</h2>
-    <div class="input-group">
-      <label>Email</label>
-      <input type="email" id="admin-email" />
-    </div>
-    <div class="input-group">
-      <label>Password</label>
-      <input type="password" id="admin-password" />
-    </div>
-    <button class="btn" onclick="login()">Login</button>
-    <p id="auth-msg" style="color:red;"></p>
+<!-- ========== LOGIN ========== -->
+<div id="loginView" class="flex items-center justify-center min-h-screen">
+  <div class="bg-slate-900 p-8 rounded-xl shadow-xl w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center mb-6">Admin Login</h1>
+    <input id="admin-email" type="email" placeholder="Email" class="w-full mb-3 px-4 py-2 rounded bg-slate-800 border border-slate-700" />
+    <input id="admin-password" type="password" placeholder="Password" class="w-full mb-4 px-4 py-2 rounded bg-slate-800 border border-slate-700" />
+    <button onclick="login()" class="w-full py-2 rounded bg-indigo-600 hover:bg-indigo-700">Login</button>
+    <p id="auth-msg" class="text-red-400 text-sm mt-3"></p>
   </div>
+</div>
 
-  <!-- Admin Sections (hidden until login) -->
-  <div id="admin-content" style="display:none;">
+<!-- ========== DASHBOARD ========== -->
+<div id="dashboard" class="hidden">
+  <div class="flex">
 
-    <!-- Site Metadata -->
-    <div class="section">
-      <h2>Site Metadata</h2>
-      <div class="input-group">
-        <label>Title</label>
-        <input type="text" id="site-title"/>
-      </div>
-      <div class="input-group">
-        <label>Favicon URL</label>
-        <input type="text" id="favicon-url"/>
-      </div>
-    </div>
+    <!-- Sidebar -->
+    <aside class="w-72 bg-slate-900 min-h-screen p-6">
+      <h2 class="text-xl font-semibold mb-6">Portfolio Admin</h2>
+      <nav class="space-y-3 text-sm">
+        <button onclick="showSection('meta')" class="block w-full text-left hover:text-indigo-400">Site Meta</button>
+        <button onclick="showSection('hero')" class="block w-full text-left hover:text-indigo-400">Hero</button>
+        <button onclick="showSection('about')" class="block w-full text-left hover:text-indigo-400">About</button>
+        <button onclick="showSection('cards')" class="block w-full text-left hover:text-indigo-400">Cards</button>
+        <button onclick="showSection('skills')" class="block w-full text-left hover:text-indigo-400">Skills</button>
+        <button onclick="showSection('styles')" class="block w-full text-left hover:text-indigo-400">Theme & Styles</button>
+        <button onclick="showSection('footer')" class="block w-full text-left hover:text-indigo-400">Footer</button>
+      </nav>
+    </aside>
 
-    <!-- Hero Section -->
-    <div class="section">
-      <h2>Hero Section</h2>
-      <div class="input-group">
-        <label>Heading</label>
-        <input type="text" id="hero-heading"/>
-      </div>
-      <div class="input-group">
-        <label>Subheading</label>
-        <textarea id="hero-subheading"></textarea>
-      </div>
-      <div class="input-group">
-        <label>Hero Image</label>
-        <input type="file" id="hero-image"/>
-      </div>
-    </div>
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-8">
 
-    <!-- About Me Section -->
-    <div class="section">
-      <h2>About Me</h2>
-      <div class="input-group">
-        <label>Paragraph</label>
-        <textarea id="about-text"></textarea>
-      </div>
-    </div>
+      <!-- META -->
+      <section id="meta" class="panel">
+        <h3 class="text-xl font-semibold mb-4">Site Metadata</h3>
+        <input id="site-title" placeholder="Website Title" class="input" />
+        <input id="favicon-url" placeholder="Favicon URL" class="input" />
+      </section>
 
-    <!-- Cards Section -->
-    <div class="section">
-      <h2>Cards (Projects / Experience / Certifications)</h2>
-      <div class="cards-container" id="cards-container"></div>
-      <button class="btn" onclick="addCard()">Add Card</button>
-    </div>
+      <!-- HERO -->
+      <section id="hero" class="panel hidden">
+        <h3 class="text-xl font-semibold mb-4">Hero Section</h3>
+        <input id="hero-name" placeholder="Your Name" class="input" />
+        <input id="hero-subtitle" placeholder="Subtitle" class="input" />
+        <input id="hero-tagline" placeholder="Tagline" class="input" />
+      </section>
 
-    <!-- Skills Section -->
-    <div class="section">
-      <h2>Skills</h2>
-      <div class="input-group">
-        <label>Skills (comma separated)</label>
-        <input type="text" id="skills-text"/>
-      </div>
-    </div>
+      <!-- ABOUT -->
+      <section id="about" class="panel hidden">
+        <h3 class="text-xl font-semibold mb-4">About Section</h3>
+        <textarea id="about-text" rows="5" class="input" placeholder="Paragraphs separated by new line"></textarea>
+      </section>
 
-    <!-- Resume Section -->
-    <div class="section">
-      <h2>Resume</h2>
-      <div class="input-group">
-        <label>Resume URL</label>
-        <input type="text" id="resume-url"/>
-      </div>
-    </div>
+      <!-- CARDS -->
+      <section id="cards" class="panel hidden">
+        <h3 class="text-xl font-semibold mb-4">Cards / Projects</h3>
+        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        <button onclick="addCard()" class="mt-4 bg-indigo-600 px-4 py-2 rounded">Add Card</button>
+      </section>
 
-    <!-- Footer Section -->
-    <div class="section">
-      <h2>Footer</h2>
-      <div class="input-group">
-        <label>Footer Text</label>
-        <input type="text" id="footer-text"/>
-      </div>
-      <div class="input-group">
-        <label>Social Links (JSON)</label>
-        <textarea id="footer-social"></textarea>
-      </div>
-    </div>
+      <!-- SKILLS -->
+      <section id="skills" class="panel hidden">
+        <h3 class="text-xl font-semibold mb-4">Skills</h3>
+        <textarea id="skills-text" rows="3" class="input" placeholder="Skill:Level (e.g. JS:80)"></textarea>
+      </section>
 
-    <button class="btn" onclick="saveAll()">Save All Changes</button>
-    <p id="save-msg" style="color:green;"></p>
+      <!-- STYLES -->
+      <section id="styles" class="panel hidden">
+        <h3 class="text-xl font-semibold mb-4">Theme & Styles</h3>
+        <label class="block">Primary Color</label>
+        <input type="color" id="primaryColor" />
+        <label class="block mt-3">Secondary Color</label>
+        <input type="color" id="secondaryColor" />
+        <label class="block mt-3">Font Family</label>
+        <select id="fontFamily" class="input">
+          <option value="Inter">Inter</option>
+          <option value="Poppins">Poppins</option>
+          <option value="Roboto">Roboto</option>
+        </select>
+      </section>
+
+      <!-- FOOTER -->
+      <section id="footer" class="panel hidden">
+        <h3 class="text-xl font-semibold mb-4">Footer</h3>
+        <input id="footer-text" class="input" placeholder="Footer text" />
+      </section>
+
+      <button onclick="saveAll()" class="fixed bottom-6 right-6 bg-emerald-600 px-6 py-3 rounded-full shadow-xl">Save & Publish</button>
+      <p id="save-msg" class="text-emerald-400 mt-4"></p>
+    </main>
   </div>
 </div>
 
 <script>
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyBl7UeClHdUhEQC4eJXH8cTFsy31XPFrII",
-    authDomain: "portfolio-fc649.firebaseapp.com",
-    databaseURL: "https://portfolio-fc649-default-rtdb.firebaseio.com",
-    projectId: "portfolio-fc649",
-    storageBucket: "portfolio-fc649.firebasestorage.app",
-    messagingSenderId: "134392119777",
-    appId: "1:134392119777:web:8b1fccb70bfe26886052a0",
-    measurementId: "G-FYDPK3854Q"  
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBl7UeClHdUhEQC4eJXH8cTFsy31XPFrII",
+  authDomain: "portfolio-fc649.firebaseapp.com",
+  databaseURL: "https://portfolio-fc649-default-rtdb.firebaseio.com",
+  projectId: "portfolio-fc649",
+  storageBucket: "portfolio-fc649.appspot.com",
+  messagingSenderId: "134392119777",
+  appId: "1:134392119777:web:8b1fccb70bfe26886052a0"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+/* ================= UI ================= */
+function showSection(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+/* ================= AUTH ================= */
+function login() {
+  auth.signInWithEmailAndPassword(
+    admin-email.value,
+    admin-password.value
+  ).then(() => {
+    loginView.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    loadData();
+  }).catch(e => auth-msg.innerText = e.message);
+}
+
+/* ================= DATA ================= */
+function loadData() {
+  db.ref('portfolio').once('value').then(snap => {
+    const d = snap.val() || {};
+    site-title.value = d.meta?.title || '';
+    favicon-url.value = d.meta?.favicon || '';
+    hero-name.value = d.hero?.name || '';
+    hero-subtitle.value = d.hero?.subtitle || '';
+    hero-tagline.value = d.hero?.tagline || '';
+    about-text.value = (d.about?.paragraphs || []).join('\n');
+    footer-text.value = d.footer?.text || '';
+    primaryColor.value = d.styles?.primary || '#6366f1';
+    secondaryColor.value = d.styles?.secondary || '#0f172a';
+    fontFamily.value = d.styles?.font || 'Inter';
+  });
+}
+
+function saveAll() {
+  const data = {
+    meta: { title: site-title.value, favicon: favicon-url.value },
+    hero: { name: hero-name.value, subtitle: hero-subtitle.value, tagline: hero-tagline.value },
+    about: { paragraphs: about-text.value.split('\n').filter(Boolean) },
+    footer: { text: footer-text.value },
+    styles: {
+      primary: primaryColor.value,
+      secondary: secondaryColor.value,
+      font: fontFamily.value
+    },
+    published: true,
+    updatedAt: Date.now()
   };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
-  const storage = firebase.storage();
 
-  // Login
-  function login(){
-    const email = document.getElementById('admin-email').value;
-    const pass = document.getElementById('admin-password').value;
-    auth.signInWithEmailAndPassword(email, pass)
-    .then(() => {
-      document.getElementById('auth-section').style.display = 'none';
-      document.getElementById('admin-content').style.display = 'block';
-      loadData();
-    })
-    .catch(err => document.getElementById('auth-msg').innerText = err.message);
-  }
-
-  // Load data from Firebase
-  function loadData(){
-    db.ref('/portfolio').once('value').then(snapshot => {
-      const data = snapshot.val() || {};
-      document.getElementById('site-title').value = data.title || '';
-      document.getElementById('favicon-url').value = data.favicon || '';
-      document.getElementById('hero-heading').value = data.hero?.heading || '';
-      document.getElementById('hero-subheading').value = data.hero?.subheading || '';
-      document.getElementById('about-text').value = data.about || '';
-      document.getElementById('skills-text').value = (data.skills || []).join(',');
-      document.getElementById('resume-url').value = data.resume || '';
-      document.getElementById('footer-text').value = data.footer?.text || '';
-      document.getElementById('footer-social').value = JSON.stringify(data.footer?.social || []);
-      
-      // Load cards
-      const cardsContainer = document.getElementById('cards-container');
-      cardsContainer.innerHTML = '';
-      (data.cards || []).forEach((card, index)=>{
-        createCardElement(card, index);
-      });
-    });
-  }
-
-  // Create card element
-  function createCardElement(card = {title:'',desc:'',img:''}, index){
-    const container = document.getElementById('cards-container');
-    const div = document.createElement('div');
-    div.className = 'card-item';
-    div.dataset.index = index;
-
-    const img = document.createElement('img');
-    img.src = card.img || '';
-    div.appendChild(img);
-
-    const title = document.createElement('input');
-    title.value = card.title;
-    title.placeholder = 'Card Title';
-    div.appendChild(title);
-
-    const desc = document.createElement('textarea');
-    desc.value = card.desc;
-    desc.placeholder = 'Card Description';
-    div.appendChild(desc);
-
-    const file = document.createElement('input');
-    file.type='file';
-    file.onchange = e => uploadCardImage(e, div.dataset.index);
-    div.appendChild(file);
-
-    const removeBtn = document.createElement('button');
-    removeBtn.className='remove-card';
-    removeBtn.innerText='×';
-    removeBtn.onclick = () => { container.removeChild(div); };
-    div.appendChild(removeBtn);
-
-    container.appendChild(div);
-  }
-
-  function addCard(){ createCardElement(); }
-
-  function uploadCardImage(e, index){
-    const file = e.target.files[0];
-    if(!file) return;
-    const storageRef = storage.ref('cards/'+file.name);
-    storageRef.put(file).then(()=> storageRef.getDownloadURL().then(url=>{
-      document.querySelectorAll('.card-item')[index].querySelector('img').src = url;
-    }));
-  }
-
-  // Save all
-  function saveAll(){
-    const cards = [];
-    document.querySelectorAll('.card-item').forEach(div=>{
-      cards.push({
-        title: div.querySelector('input').value,
-        desc: div.querySelector('textarea').value,
-        img: div.querySelector('img').src
-      });
-    });
-
-    const data = {
-      title: document.getElementById('site-title').value,
-      favicon: document.getElementById('favicon-url').value,
-      hero: {
-        heading: document.getElementById('hero-heading').value,
-        subheading: document.getElementById('hero-subheading').value
-      },
-      about: document.getElementById('about-text').value,
-      cards: cards,
-      skills: document.getElementById('skills-text').value.split(',').map(s=>s.trim()),
-      resume: document.getElementById('resume-url').value,
-      footer: {
-        text: document.getElementById('footer-text').value,
-        social: JSON.parse(document.getElementById('footer-social').value || '[]')
-      }
-    };
-    db.ref('/portfolio').set(data).then(()=>{
-      document.getElementById('save-msg').innerText = 'Saved Successfully!';
-      setTimeout(()=> document.getElementById('save-msg').innerText='', 3000);
-    });
-  }
+  db.ref('portfolio').set(data).then(() => {
+    save-msg.innerText = 'Changes published successfully';
+    setTimeout(() => save-msg.innerText = '', 3000);
+  });
+}
 </script>
+
 </body>
 </html>
