@@ -158,39 +158,51 @@ function login() {
 function loadData() {
   db.ref('portfolio').once('value').then(snap => {
     const d = snap.val() || {};
-    site-title.value = d.meta?.title || '';
-    favicon-url.value = d.meta?.favicon || '';
-    hero-name.value = d.hero?.name || '';
-    hero-subtitle.value = d.hero?.subtitle || '';
-    hero-tagline.value = d.hero?.tagline || '';
-    about-text.value = (d.about?.paragraphs || []).join('\n');
-    footer-text.value = d.footer?.text || '';
-    primaryColor.value = d.styles?.primary || '#6366f1';
-    secondaryColor.value = d.styles?.secondary || '#0f172a';
-    fontFamily.value = d.styles?.font || 'Inter';
+    document.getElementById('site-title').value = d.meta?.title || '';
+    document.getElementById('favicon-url').value = d.meta?.favicon || '';
+    document.getElementById('hero-name').value = d.hero?.name || '';
+    document.getElementById('hero-subtitle').value = d.hero?.subtitle || '';
+    document.getElementById('hero-tagline').value = d.hero?.tagline || '';
+    document.getElementById('about-text').value = (d.about?.paragraphs || []).join('\n');
+    document.getElementById('footer-text').value = d.footer?.text || '';
+    document.getElementById('primaryColor').value = d.styles?.primary || '#6366f1';
+    document.getElementById('secondaryColor').value = d.styles?.secondary || '#0f172a';
+    document.getElementById('fontFamily').value = d.styles?.font || 'Inter';
   });
 }
 
 function saveAll() {
   const data = {
-    meta: { title: site-title.value, favicon: favicon-url.value },
-    hero: { name: hero-name.value, subtitle: hero-subtitle.value, tagline: hero-tagline.value },
-    about: { paragraphs: about-text.value.split('\n').filter(Boolean) },
-    footer: { text: footer-text.value },
+    meta: {
+      title: document.getElementById('site-title').value,
+      favicon: document.getElementById('favicon-url').value
+    },
+    hero: {
+      name: document.getElementById('hero-name').value,
+      subtitle: document.getElementById('hero-subtitle').value,
+      tagline: document.getElementById('hero-tagline').value
+    },
+    about: {
+      paragraphs: document.getElementById('about-text').value.split('\n').filter(Boolean)
+    },
+    footer: {
+      text: document.getElementById('footer-text').value
+    },
     styles: {
-      primary: primaryColor.value,
-      secondary: secondaryColor.value,
-      font: fontFamily.value
+      primary: document.getElementById('primaryColor').value,
+      secondary: document.getElementById('secondaryColor').value,
+      font: document.getElementById('fontFamily').value
     },
     published: true,
     updatedAt: Date.now()
   };
 
   db.ref('portfolio').set(data).then(() => {
-    save-msg.innerText = 'Changes published successfully';
-    setTimeout(() => save-msg.innerText = '', 3000);
+    document.getElementById('save-msg').innerText = 'Changes published successfully';
+    setTimeout(() => document.getElementById('save-msg').innerText = '', 3000);
   });
 }
+
 </script>
 
 </body>
